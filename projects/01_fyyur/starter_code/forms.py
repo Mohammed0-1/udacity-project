@@ -1,7 +1,7 @@
 from datetime import datetime
 from flask_wtf import Form
 from wtforms import StringField, SelectField, SelectMultipleField, DateTimeField, BooleanField
-from wtforms.validators import DataRequired, AnyOf, URL
+from wtforms.validators import DataRequired, AnyOf, URL,Regexp
 
 class ShowForm(Form):
     artist_id = StringField(
@@ -83,38 +83,39 @@ class VenueForm(Form):
         'address', validators=[DataRequired()]
     )
     phone = StringField(
-        'phone'
+        'phone', validators=[DataRequired(), Regexp('^[0-9]*$', message='phone number should only contain digits')]
     )
     image_link = StringField(
         'image_link'
     )
+    choices = [
+        ('Alternative', 'Alternative'),
+        ('Blues', 'Blues'),
+        ('Classical', 'Classical'),
+        ('Country', 'Country'),
+        ('Electronic', 'Electronic'),
+        ('Folk', 'Folk'),
+        ('Funk', 'Funk'),
+        ('Hip-Hop', 'Hip-Hop'),
+        ('Heavy Metal', 'Heavy Metal'),
+        ('Instrumental', 'Instrumental'),
+        ('Jazz', 'Jazz'),
+        ('Musical Theatre', 'Musical Theatre'),
+        ('Pop', 'Pop'),
+        ('Punk', 'Punk'),
+        ('R&B', 'R&B'),
+        ('Reggae', 'Reggae'),
+        ('Rock n Roll', 'Rock n Roll'),
+        ('Soul', 'Soul'),
+        ('Other', 'Other'),
+    ]
     genres = SelectMultipleField(
         # TODO implement enum restriction
-        'genres', validators=[DataRequired()],
-        choices=[
-            ('Alternative', 'Alternative'),
-            ('Blues', 'Blues'),
-            ('Classical', 'Classical'),
-            ('Country', 'Country'),
-            ('Electronic', 'Electronic'),
-            ('Folk', 'Folk'),
-            ('Funk', 'Funk'),
-            ('Hip-Hop', 'Hip-Hop'),
-            ('Heavy Metal', 'Heavy Metal'),
-            ('Instrumental', 'Instrumental'),
-            ('Jazz', 'Jazz'),
-            ('Musical Theatre', 'Musical Theatre'),
-            ('Pop', 'Pop'),
-            ('Punk', 'Punk'),
-            ('R&B', 'R&B'),
-            ('Reggae', 'Reggae'),
-            ('Rock n Roll', 'Rock n Roll'),
-            ('Soul', 'Soul'),
-            ('Other', 'Other'),
-        ]
+        'genres', validators=[DataRequired(),AnyOf(choices)],
+        choices=choices
     )
     facebook_link = StringField(
-        'facebook_link', validators=[URL()]
+        'facebook_link', validators=[URL(message='Facebook link should be a valid URL')]
     )
     website_link = StringField(
         'website_link'
@@ -192,38 +193,37 @@ class ArtistForm(Form):
         ]
     )
     phone = StringField(
-        # TODO implement validation logic for state
-        'phone'
+        'phone',validators=[DataRequired(),Regexp('^[0-9]*$',message='The phone nubmer should only containg digits')]
     )
     image_link = StringField(
-        'image_link'
+        'image_link',validators=[URL()]
     )
+    choices = [
+        ('Alternative', 'Alternative'),
+        ('Blues', 'Blues'),
+        ('Classical', 'Classical'),
+        ('Country', 'Country'),
+        ('Electronic', 'Electronic'),
+        ('Folk', 'Folk'),
+        ('Funk', 'Funk'),
+        ('Hip-Hop', 'Hip-Hop'),
+        ('Heavy Metal', 'Heavy Metal'),
+        ('Instrumental', 'Instrumental'),
+        ('Jazz', 'Jazz'),
+        ('Musical Theatre', 'Musical Theatre'),
+        ('Pop', 'Pop'),
+        ('Punk', 'Punk'),
+        ('R&B', 'R&B'),
+        ('Reggae', 'Reggae'),
+        ('Rock n Roll', 'Rock n Roll'),
+        ('Soul', 'Soul'),
+        ('Other', 'Other'),
+    ]
     genres = SelectMultipleField(
-        'genres', validators=[DataRequired()],
-        choices=[
-            ('Alternative', 'Alternative'),
-            ('Blues', 'Blues'),
-            ('Classical', 'Classical'),
-            ('Country', 'Country'),
-            ('Electronic', 'Electronic'),
-            ('Folk', 'Folk'),
-            ('Funk', 'Funk'),
-            ('Hip-Hop', 'Hip-Hop'),
-            ('Heavy Metal', 'Heavy Metal'),
-            ('Instrumental', 'Instrumental'),
-            ('Jazz', 'Jazz'),
-            ('Musical Theatre', 'Musical Theatre'),
-            ('Pop', 'Pop'),
-            ('Punk', 'Punk'),
-            ('R&B', 'R&B'),
-            ('Reggae', 'Reggae'),
-            ('Rock n Roll', 'Rock n Roll'),
-            ('Soul', 'Soul'),
-            ('Other', 'Other'),
-        ]
+        'genres', validators=[DataRequired(),AnyOf(choices)],
+        choices=choices
      )
     facebook_link = StringField(
-        # TODO implement enum restriction
         'facebook_link', validators=[URL()]
      )
 
