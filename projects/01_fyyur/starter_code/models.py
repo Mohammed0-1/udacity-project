@@ -1,6 +1,7 @@
-from app import db
+from flask_sqlalchemy import SQLAlchemy
 from datetime import *
 
+db = SQLAlchemy()
 
 class Show(db.Model):
     __tablename__ = 'shows'
