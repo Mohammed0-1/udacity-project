@@ -18,6 +18,14 @@ def setup_db(app, database_path=database_path):
     db.init_app(app)
     db.create_all()
 
+def db_drop_and_create_all():
+    db.drop_all()
+    db.create_all()
+    movie = Movie(title='Inception', release_date='2010-5-1')
+    movie.create()
+    actor = Actor(name='Mohammed', age=25, gender='Male')
+    actor.create()
+
 class Movie(db.Model):
     __tablename__ = 'movies'
 

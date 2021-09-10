@@ -2,12 +2,13 @@ import os
 from flask import Flask, request, abort, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
-from models import setup_db, Actor, Movie
+from models import db_drop_and_create_all, setup_db, Actor, Movie
 from auth import AuthError, requires_auth
 def create_app(test_config=None):
   # create and configure the app
   app = Flask(__name__)
   setup_db(app)
+  db_drop_and_create_all()
   CORS(app, resources={r"/*": {"origins":"*"}})
 
   @app.after_request
@@ -21,8 +22,8 @@ def create_app(test_config=None):
     return 'https://dev-z6rs6ps7.us.auth0.com/authorize?audience=casting_agency&response_type=token&client_id=VB4qQBe6zyO4GeXscN992O8rnHkwbMKV&redirect_uri=http://127.0.0.1:5000/'
 
   @app.route('/actors', methods=['GET'])
-  #@requires_auth('get:actors')
-  def get_actors():
+  @requires_auth('get:actors')
+  def get_actors(payload):
     actors = Actor.query.all()
     res = format_actors(actors)
     return jsonify({
@@ -31,7 +32,8 @@ def create_app(test_config=None):
 
 
   @app.route('/actors', methods=['POST'])
-  def create_actor():
+  @requires_auth('add:actors')
+  def create_actor(payload):
     body = request.get_json()
     name = body.get('name',None)
     age = body.get('age',None)
@@ -48,7 +50,8 @@ def create_app(test_config=None):
       abort(422)
   
   @app.route('/actors/<int:id>', methods=['PATCH'])
-  def edit_actor(id):
+  @requires_auth('patch:actors')
+  def edit_actor(payload, id):
     actor = Actor.query.get(id)
     if actor == None:
       abort(404)
@@ -65,7 +68,8 @@ def create_app(test_config=None):
     })
 
   @app.route('/actors/<int:id>', methods=['DELETE'])
-  def delete_actor(id):
+  @requires_auth('delete:actors')
+  def delete_actor(payload, id):
     actor = Actor.query.get(id)
     if actor == None:
       abort(404)
@@ -75,7 +79,8 @@ def create_app(test_config=None):
     }) 
 
   @app.route('/movies', methods=['GET'])
-  def get_movies():
+  @requires_auth('get:movies')
+  def get_movies(payload):
     movies = Movie.query.all()
     res = format_movies(movies)
     return jsonify({
@@ -85,7 +90,8 @@ def create_app(test_config=None):
   
   
   @app.route('/movies', methods=['POST'])
-  def create_movie():
+  @requires_auth('add:movies')
+  def create_movie(payload):
     body = request.get_json()
     title = body.get('title',None)
     release_date = body.get('release date',None)
@@ -101,7 +107,8 @@ def create_app(test_config=None):
       abort(422)
 
   @app.route('/movies/<int:id>', methods=['PATCH'])
-  def edit_movie(id):
+  @requires_auth('patch:movies')
+  def edit_movie(payload, id):
     movie = Movie.query.get(id)
     if movie == None:
       abort(404)
@@ -118,7 +125,8 @@ def create_app(test_config=None):
     })
 
   @app.route('/movies/<int:id>', methods=['DELETE'])
-  def delete_movie(id):
+  @requires_auth('delete:movies')
+  def delete_movie(payload, id):
     movie = Movie.query.get(id)
     if movie == None:
       abort(404)
@@ -126,6 +134,48 @@ def create_app(test_config=None):
     return jsonify({
       'success': True
     })  
+
+#Error handelers for : 400,404,422,500
+
+  @app.errorhandler(AuthError)
+  def auth_error(error):
+    return jsonify({
+      'success': False,
+      'error' : error.status_code,
+      'message': error.error['code']
+      }), error.status_code
+
+  @app.errorhandler(400)
+  def bad_request(error):
+    return jsonify({
+      'success': False,
+      'error': 400,
+      'message': "Bad Request."
+    })
+  @app.errorhandler(404)
+  def not_found(error):
+    return jsonify({
+        "success": False, 
+        "error": 404,
+        "message": "Not found."
+        }), 404
+  
+  @app.errorhandler(422)
+  def unprocessable(error):
+    return jsonify({
+      'success': False,
+      'error': 422,
+      'message': "The request was well-formed but can not be processed due to semantic errors."
+    }), 422
+    @app.errorhandler(500)
+    def internal_error(error):
+      return jsonify({
+        'success': False,
+        'error': 500,
+        'message': 'Internal server error.'
+      }), 500
+    
+        
   return app
 
 APP = create_app()
