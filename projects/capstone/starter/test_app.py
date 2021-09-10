@@ -28,9 +28,7 @@ class castingAgencyTestCase(unittest.TestCase):
         with self.app.app_context():
             self.db = SQLAlchemy()
             self.db.init_app(self.app)
-            #self.db.drop_all()
-            # create all tables
-            #self.db.create_all()
+
     
     def tearDown(self):
         """Executed after reach test"""
